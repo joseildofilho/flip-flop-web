@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<header>
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+</header>
+
+<body>
+    <h1>Login</h1>
+    <form>
+        <label for="username"><b>Username</b></label>
+        <input type="text" placeholder="Enter Username" name="username" required>
+
+        <label for="username"><b>Password</b></label>
+        <input type="password" placeholder="Enter Password" name="password" required>
+
+        <button hx-post="/auth/login/">Login</button>
+    </form>
+</body>
+
+</html>

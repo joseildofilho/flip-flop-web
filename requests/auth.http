@@ -1,0 +1,8 @@
+@host=http://127.0.0.1:8090
+
+POST {{host}}/auth/login/
+Content-Type: application/x-www-form-urlencoded
+Accept: application/json
+
+username=filho@tijolotech.com&
+password=12345678
