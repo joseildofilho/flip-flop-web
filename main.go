@@ -52,7 +52,9 @@ func main() {
 				Secure:   true,
 				HttpOnly: true,
 			})
-			return e.Redirect(302, "/home")
+
+			e.Response.Header().Add("HX-Location", "/home")
+			return e.NoContent(204)
 		})
 
 		return e.Next()
