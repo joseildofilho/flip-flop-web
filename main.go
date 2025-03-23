@@ -44,10 +44,15 @@ func main() {
 				return fmt.Errorf("Invalid password")
 			}
 			e.App.Logger().Info(fmt.Sprintf("User: %v", user))
+			token, err := user.NewAuthToken()
+			if err != nil {
+				e.App.Logger().Error(fmt.Sprintf("Error: %s", err))
+				return e.Next()
+			}
 
 			e.SetCookie(&http.Cookie{
 				Name:     "session",
-				Value:    user.TokenKey(),
+				Value:    token,
 				Path:     "/",
 				Secure:   true,
 				HttpOnly: true,
@@ -55,6 +60,37 @@ func main() {
 
 			e.Response.Header().Add("HX-Location", "/home")
 			return e.NoContent(204)
+		})
+
+		recordsGroups := e.Router.Group("/records")
+		recordsGroups.GET("/", func(e *core.RequestEvent) error {
+			tokenCookie, err := e.Request.Cookie("session")
+			e.App.Logger().Info(fmt.Sprintf("Token: %s", tokenCookie))
+			if err != nil {
+				return e.Next()
+			}
+
+			token := tokenCookie.Value
+			_, err = e.App.FindAuthRecordByToken(token)
+			if err != nil {
+				e.App.Logger().Error(fmt.Sprintf("Error: %s", err))
+				return e.Next()
+			}
+
+			records, err := e.App.FindAllRecords("records")
+			e.App.Logger().Info(fmt.Sprintf("Records: %v", records))
+			if err != nil {
+				e.App.Logger().Error(fmt.Sprintf("Error: %s", err))
+				return e.Next()
+			}
+
+			var value string
+			for _, record := range records {
+				value += fmt.Sprintf("<tr><td>%s</td></tr>\n", record.GetString("started_at"))
+			}
+			e.App.Logger().Info(fmt.Sprintf("Value: %s", value))
+
+			return e.HTML(200, value)
 		})
 
 		return e.Next()
